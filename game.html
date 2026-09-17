@@ -205,8 +205,8 @@
                 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_infantry.jpg" class="shop-unit-thumb" alt="Blue Infantry">
-                        <img src="images/red_infantry.jpg" class="shop-unit-thumb" alt="Red Infantry">
+                        <img data-src="blue_infantry.jpg" class="shop-unit-thumb repo-img" alt="Blue Infantry">
+                        <img data-src="red_infantry.jpg" class="shop-unit-thumb repo-img" alt="Red Infantry">
                     </div>
                     <span class="shop-unit-name">Infantry</span>
                     <div class="shop-action-group">
@@ -217,8 +217,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_tank.jpg" class="shop-unit-thumb" alt="Blue Tank">
-                        <img src="images/red_tank.jpg" class="shop-unit-thumb" alt="Red Tank">
+                        <img data-src="blue_tank.jpg" class="shop-unit-thumb repo-img" alt="Blue Tank">
+                        <img data-src="red_tank.jpg" class="shop-unit-thumb repo-img" alt="Red Tank">
                     </div>
                     <span class="shop-unit-name">Tank</span>
                     <div class="shop-action-group">
@@ -229,8 +229,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_artillery.jpg" class="shop-unit-thumb" alt="Blue Artillery">
-                        <img src="images/red_artillery.jpg" class="shop-unit-thumb" alt="Red Artillery">
+                        <img data-src="blue_artillery.jpg" class="shop-unit-thumb repo-img" alt="Blue Artillery">
+                        <img data-src="red_artillery.jpg" class="shop-unit-thumb repo-img" alt="Red Artillery">
                     </div>
                     <span class="shop-unit-name">Artillery</span>
                     <div class="shop-action-group">
@@ -241,8 +241,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_ship.jpg" class="shop-unit-thumb" alt="Blue Ship">
-                        <img src="images/red_ship.jpg" class="shop-unit-thumb" alt="Red Ship">
+                        <img data-src="blue_ship.jpg" class="shop-unit-thumb repo-img" alt="Blue Ship">
+                        <img data-src="red_ship.jpg" class="shop-unit-thumb repo-img" alt="Red Ship">
                     </div>
                     <span class="shop-unit-name">Ship</span>
                     <div class="shop-action-group">
@@ -253,8 +253,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_engineer.jpg" class="shop-unit-thumb" alt="Blue Engineer">
-                        <img src="images/red_engineer.jpg" class="shop-unit-thumb" alt="Red Engineer">
+                        <img data-src="blue_engineer.jpg" class="shop-unit-thumb repo-img" alt="Blue Engineer">
+                        <img data-src="red_engineer.jpg" class="shop-unit-thumb repo-img" alt="Red Engineer">
                     </div>
                     <span class="shop-unit-name">Engineer</span>
                     <div class="shop-action-group">
@@ -265,8 +265,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_plane.jpg" class="shop-unit-thumb" alt="Blue Plane">
-                        <img src="images/red_plane.jpg" class="shop-unit-thumb" alt="Red Plane">
+                        <img data-src="blue_plane.jpg" class="shop-unit-thumb repo-img" alt="Blue Plane">
+                        <img data-src="red_plane.jpg" class="shop-unit-thumb repo-img" alt="Red Plane">
                     </div>
                     <span class="shop-unit-name">Plane</span>
                     <div class="shop-action-group">
@@ -277,8 +277,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_antiair.jpg" class="shop-unit-thumb" alt="Blue Anti-Air">
-                        <img src="images/red_antiair.jpg" class="shop-unit-thumb" alt="Red Anti-Air">
+                        <img data-src="blue_antiair.jpg" class="shop-unit-thumb repo-img" alt="Blue Anti-Air">
+                        <img data-src="red_antiair.jpg" class="shop-unit-thumb repo-img" alt="Red Anti-Air">
                     </div>
                     <span class="shop-unit-name">Anti-Air</span>
                     <div class="shop-action-group">
@@ -289,8 +289,8 @@
 
                 <div class="shop-row">
                     <div class="shop-team-side">
-                        <img src="images/blue_mine.jpg" class="shop-unit-thumb" alt="Blue Mines">
-                        <img src="images/red_mine.jpg" class="shop-unit-thumb" alt="Red Mines">
+                        <img data-src="blue_mine.jpg" class="shop-unit-thumb repo-img" alt="Blue Mines">
+                        <img data-src="red_mine.jpg" class="shop-unit-thumb repo-img" alt="Red Mines">
                     </div>
                     <span class="shop-unit-name">Mines</span>
                     <div class="shop-action-group">
@@ -328,9 +328,21 @@
                 }
             }
         };
+
+        // Apply repoBaseUrl dynamically to shop thumbnail images once scripts load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof repoBaseUrl !== 'undefined') {
+                document.querySelectorAll('.repo-img').forEach(img => {
+                    let path = img.getAttribute('data-src');
+                    if (path) {
+                        img.src = repoBaseUrl + path;
+                    }
+                });
+            }
+        });
     </script>
 
-    <!-- GAME SCRIPTS -->
+    <!-- GAME SCRIPTS[span_1](start_span)[span_1](end_span) -->
     <script src="console.log.js"></script>
     <script src="map_viewport.js"></script>
     <script src="map_data.js"></script>
