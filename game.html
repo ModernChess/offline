@@ -1,1 +1,346 @@
-bdbdhdh
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Chess - Match</title>
+    <style>
+        :root {
+            --bg-color: #111;
+            --panel-bg: #1a1a1a;
+            --border-color: #333;
+            --team-theme-color: #3498db;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+        body {
+            margin: 0; background: var(--bg-color); display: flex;
+            justify-content: center; align-items: center; height: 100vh;
+            overflow: hidden; font-family: sans-serif; touch-action: manipulation; color: var(--text-main);
+        }
+        #game-screen {
+            display: flex; width: 100vw; height: 100vh; max-width: 840px; max-height: 98vh;
+            background: var(--panel-bg); border: 2px solid var(--team-theme-color);
+            border-radius: 12px; flex-direction: column; box-sizing: border-box; position: relative;
+            align-items: center; justify-content: flex-start; overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+        .game-top-bar { width: 100%; padding: 11px 22px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        .back-btn { background: #444; color: white; border: none; padding: 11px 20px; border-radius: 6px; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .change-turn-btn {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .change-turn-btn:hover {
+            opacity: 1;
+        }
+        
+        .game-hud-container {
+            width: 95%; max-width: 882px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(34, 34, 34, 0.9); border: 2px solid var(--team-theme-color);
+            padding: 12px 20px; margin: 8px 0 12px 0; border-radius: 8px; box-sizing: border-box;
+        }
+        .hud-turn-indicator { font-size: 18px; font-weight: bold; text-transform: uppercase; color: var(--team-theme-color); }
+        .hud-gold-display { display: flex; gap: 20px; font-size: 16px; font-weight: bold; }
+        .gold-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.4); padding: 6px 12px; border-radius: 6px; border: 1px solid #444; }
+        .gold-badge.active-team-gold { border-color: var(--team-theme-color); box-shadow: 0 0 8px var(--team-theme-color); }
+        .gold-icon { color: #f1c40f; font-size: 18px; }
+
+        #shop-btn { background-color: #f1c40f; color: #121212; border: none; padding: 8px 17px; font-weight: bold; font-size: 17px; border-radius: 6px; cursor: pointer; }
+        
+        #shop-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(18, 18, 18, 0.96);
+            backdrop-filter: blur(8px);
+            border: 1px solid #f1c40f;
+            padding: 14px;
+            border-radius: 12px;
+            width: 370px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 20;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            box-sizing: border-box;
+        }
+
+        #shop-modal h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-align: center;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .shop-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 6px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .shop-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .shop-unit-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #444;
+        }
+
+        .shop-team-side {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .shop-unit-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .shop-action-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shop-price-tag {
+            background: rgba(241, 196, 15, 0.12);
+            border: 1px solid rgba(241, 196, 15, 0.35);
+            color: #f1c40f;
+            padding: 3px 7px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+        }
+
+        .shop-row button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 5px 9px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .shop-row button:hover {
+            background-color: #2ecc71;
+        }
+
+        #close-shop {
+            width: 100%;
+            margin-top: 10px;
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            padding: 7px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        #close-shop:hover {
+            background-color: #e74c3c;
+        }
+
+        canvas { background: #222; border: 2px solid #444; display: block; width: 95vw; height: calc(95vw * (34 / 24)); max-width: 882px; max-height: 1248px; touch-action: none; }
+    </style>
+</head>
+<body>
+    <div id="game-screen">
+        <div class="game-top-bar">
+            <button class="back-btn" onclick="window.location.href='index.html'">Back</button>
+            <button id="change-turn-btn" class="change-turn-btn" onclick="changeTurn()">Change Turn</button>
+            <button id="shop-btn" onclick="toggleShop()">🛒 Open Shop</button>
+        </div>
+
+        <div id="game-hud-panel" class="game-hud-container">
+            <div id="turn-display" class="hud-turn-indicator">Turn: BLUE</div>
+            <div id="current-gold-num" class="hud-gold-display">
+                <div id="blue-gold-badge" class="gold-badge active-team-gold">
+                    <span class="gold-icon">🪙</span> <span>Blue: <strong id="blue-coins-num">0</strong></span>
+                </div>
+                <div id="red-gold-badge" class="gold-badge">
+                    <span class="gold-icon">🪙</span> <span>Red: <strong id="red-coins-num">0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:center; align-items:center; flex-grow:1; position:relative; width:100%; height:100%;">
+            <canvas id="gameCanvas" width="1008" height="1428"></canvas>
+
+            <div id="shop-modal">
+                <h3>Unit Recruitment Shop</h3>
+                
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_infantry.jpg" class="shop-unit-thumb" alt="Blue Infantry">
+                        <img src="images/red_infantry.jpg" class="shop-unit-thumb" alt="Red Infantry">
+                    </div>
+                    <span class="shop-unit-name">Infantry</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">1 🪙</span>
+                        <button onclick="buyUnit('infantry')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_tank.jpg" class="shop-unit-thumb" alt="Blue Tank">
+                        <img src="images/red_tank.jpg" class="shop-unit-thumb" alt="Red Tank">
+                    </div>
+                    <span class="shop-unit-name">Tank</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">1 🪙</span>
+                        <button onclick="buyUnit('tank')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_artillery.jpg" class="shop-unit-thumb" alt="Blue Artillery">
+                        <img src="images/red_artillery.jpg" class="shop-unit-thumb" alt="Red Artillery">
+                    </div>
+                    <span class="shop-unit-name">Artillery</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">2 🪙</span>
+                        <button onclick="buyUnit('artillery')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_ship.jpg" class="shop-unit-thumb" alt="Blue Ship">
+                        <img src="images/red_ship.jpg" class="shop-unit-thumb" alt="Red Ship">
+                    </div>
+                    <span class="shop-unit-name">Ship</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">2 🪙</span>
+                        <button onclick="buyUnit('ship')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_engineer.jpg" class="shop-unit-thumb" alt="Blue Engineer">
+                        <img src="images/red_engineer.jpg" class="shop-unit-thumb" alt="Red Engineer">
+                    </div>
+                    <span class="shop-unit-name">Engineer</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">2 🪙</span>
+                        <button onclick="buyUnit('engineer')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_plane.jpg" class="shop-unit-thumb" alt="Blue Plane">
+                        <img src="images/red_plane.jpg" class="shop-unit-thumb" alt="Red Plane">
+                    </div>
+                    <span class="shop-unit-name">Plane</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">3 🪙</span>
+                        <button onclick="buyUnit('plane')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_antiair.jpg" class="shop-unit-thumb" alt="Blue Anti-Air">
+                        <img src="images/red_antiair.jpg" class="shop-unit-thumb" alt="Red Anti-Air">
+                    </div>
+                    <span class="shop-unit-name">Anti-Air</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">2 🪙</span>
+                        <button onclick="buyUnit('antiair')">Buy</button>
+                    </div>
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-team-side">
+                        <img src="images/blue_mine.jpg" class="shop-unit-thumb" alt="Blue Mines">
+                        <img src="images/red_mine.jpg" class="shop-unit-thumb" alt="Red Mines">
+                    </div>
+                    <span class="shop-unit-name">Mines</span>
+                    <div class="shop-action-group">
+                        <span class="shop-price-tag">3 🪙</span>
+                        <button onclick="buyUnit('mines')">Buy</button>
+                    </div>
+                </div>
+
+                <button id="close-shop" onclick="toggleShop()">Close Shop</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleShop() {
+            let modal = document.getElementById('shop-modal');
+            let shopBtn = document.getElementById('shop-btn');
+            if (!modal || !shopBtn) return;
+            let isOpening = modal.style.display !== 'block';
+            modal.style.display = isOpening ? 'block' : 'none';
+            shopBtn.style.display = isOpening ? 'none' : 'inline-block';
+        }
+
+        window.updateHUDTheme = function() {
+            if (typeof currentTurn !== 'undefined') {
+                const teamColor = currentTurn === 'blue' ? '#3498db' : '#e74c3c';
+                document.documentElement.style.setProperty('--team-theme-color', teamColor);
+                document.getElementById('game-screen').style.borderColor = teamColor;
+                
+                const blueBadge = document.getElementById('blue-gold-badge');
+                const redBadge = document.getElementById('red-gold-badge');
+                if (blueBadge && redBadge) {
+                    blueBadge.classList.toggle('active-team-gold', currentTurn === 'blue');
+                    redBadge.classList.toggle('active-team-gold', currentTurn === 'red');
+                }
+            }
+        };
+    </script>
+
+    <!-- GAME SCRIPTS -->
+    <script src="console.log.js"></script>
+    <script src="map_viewport.js"></script>
+    <script src="map_data.js"></script>
+    <script src="team_economy_data.js"></script>
+    <script src="team_economy_logic.js"></script>
+    <script src="deployment_control.js"></script>
+    <script src="team_renderer.js"></script>
+    <script src="combat_mechanics.js"></script>
+    <script src="unit_helpers.js"></script>
+    <script src="unit_movement.js"></script>
+    <script src="unit_renderer.js"></script>
+</body>
+</html>
